@@ -2,14 +2,16 @@ import scrapy
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
 from scrapy.selector import Selector
-from scrapy.http import HtmlResponse		
+from scrapy.http import HtmlResponse
+import models		
 
 class NewsSpider(CrawlSpider):
 	name = "newsspider"
 	start_urls = ["http://www.bbc.com"]
-	rules = (		
-		Rule(LinkExtractor(allow=('/news/+.',)), callback='parse_item'),
-	)
+
+	#Just check for http://www.bbc.com/news/xxx  
+	rules = (Rule(LinkExtractor(allow=('/news/+.',)), callback='parse_item'),)
+
 	def parse_item(self, res):				
 		title = res.css('h1.story-body__h1 ::text').extract_first()			
 		if title != None:
