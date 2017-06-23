@@ -8,12 +8,17 @@ class NewsSpider(CrawlSpider):
 	name = "newsspider"
 	start_urls = ["http://www.bbc.com"]
 	rules = (		
-		Rule(LinkExtractor(allow=('/news/?',)), callback='parse_item'),
+		Rule(LinkExtractor(allow=('/news/+.',)), callback='parse_item'),
 	)
-	def parse_item(self, res):
-		print(res.url)
-		print(res.css('h1.story-body__h1 ::text').extract_first())
-		raw = res.css('div.story-body__inner p ::text')
-		body = ''.join(raw.extract())
-		print(body)
-		print('\n\n')
+	def parse_item(self, res):				
+		title = res.css('h1.story-body__h1 ::text').extract_first()			
+		if title != None:
+			url = res.url
+			print('\n\n')
+			print("URL: " + url)
+			print("TITLE: " + title)
+			print("BODY:")
+			raw = res.css('div.story-body__inner p ::text')
+			body =  ''.join(raw.extract())
+			print(body)
+			print('\n\n')
