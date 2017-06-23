@@ -6,9 +6,8 @@ from scrapy.http import HtmlResponse
 import models		
 
 class NewsSpider(CrawlSpider):
-	name = "newsspider"
+	name = "newsspider"	
 	start_urls = ["http://www.bbc.com"]
-
 	#Just check for http://www.bbc.com/news/xxx  
 	rules = (Rule(LinkExtractor(allow=('/news/+.',)), callback='parse_item'),)
 
