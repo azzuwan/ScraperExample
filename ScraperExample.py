@@ -11,10 +11,12 @@ import datetime
 class NewsSpider(CrawlSpider):
 	name = "newsspider"	
 	bbc = "http://www.bbc.com"
-	guardian = "https://www.theguardian.com"
+	guardian = "https://www.theguardian.com/world"
 	# start_urls = [bbc, guardian]
-	# start_urls = [bbc]
-	start_urls = [guardian]
+	start_urls = [bbc]
+	# start_urls = [guardian]
+	allowed_domains["bbc.com", "bbc.co.uk", "theguardian.com"]
+	
 	bbc_parser = BBCParser()
 	guardian_parser = GuardianParser()	
 	
@@ -22,8 +24,8 @@ class NewsSpider(CrawlSpider):
 		# Since BBC is using RESTful and pretty url schema, 
 		# we just need to crawl for http://www.bbc.com/news/xxx links
 		# from the main page.
-		# Rule(LinkExtractor(allow=('/news/+.',)), callback='parse_item'),
-		Rule(LinkExtractor(), callback='parse_item', follow=True),
+		# Rule(LinkExtractor(allow=('/news/+.',)), callback='parse_item'),		
+		Rule(LinkExtractor(allow=()), callback='parse_item', follow=True),		
 		# Guardian top level news links are clasified into regional sections
 		# Rule(LinkExtractor(allow=(guardian +'/+.',)), callback='parse_item'),
 		)
@@ -35,7 +37,7 @@ class NewsSpider(CrawlSpider):
 		# 2) Database insertion operation		
 		
 		# Parsing handler that loads site dependent parsers
-		article = self.parse(res)
+		article = yield self.parse(res)
 		
 		# Sanitizer will go here 
 		# Mercury / Readability is not implemented here because it sucks
@@ -43,18 +45,20 @@ class NewsSpider(CrawlSpider):
 		# Implementing it only adds more noise with zero gain
 
 		# Save processed article to Compose MongoDB instances
-		self.save(article)
+		yield self.save(article)
 		return None
 
 	# Our parser factory
 	def parse(self, res):
 		article = None
 		if self.bbc in res.url:
+			print ("BBBBBBBBBBBBBBBBBBBS")
 			try:			
 				article = yield self.bbc_parser.parse(res)
 			except Exception as e:
 				print("BBC content parsing error: ", e)
 		else:
+			print ("GGGGGGGGGGGGGGGGGGG")
 			try:
 				article = yield self.guardian_parser.parse(res)
 			except Exception as e:
@@ -67,3 +71,7 @@ class NewsSpider(CrawlSpider):
 			yield article.save()
 		except Exception as e:
 			print ('Unable to save Article in database: ', e)
+
+class LinkInfo(scrapy.Item):
+	link = scrapy.Field()
+    attr = scrapy.Field()

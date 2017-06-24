@@ -1,8 +1,12 @@
 from models.news import Article
 import datetime
+from pprint import pprint
 
 class BBCParser():	
-	def parse(self, res):		
+	def parse(self, res):
+		print("PPPPPPPPPPPPPPPPP")
+		# print( vars(res))	
+		# pprint(vars(res))	
 		title = self.get_title(res)
 		if title != None:						
 			article = Article()
@@ -13,6 +17,7 @@ class BBCParser():
 			article.author= self.get_author(res)
 			article.agency= self.get_agency(res)
 			self.log(article)
+			print("AAAAAAAAARRRRRRRRRRRRR")			
 			return article
 	
 	def get_title(self, res):
