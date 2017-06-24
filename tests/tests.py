@@ -15,12 +15,12 @@ class NewsSpiderTester(unittest.TestCase):
 		self.assertEqual(total, 1)
 
 	def test_query(self):
-		for article in Article.objects:
-			print(article)
-		self.assertEqual(Article.objects[0].title, "Test Title")
+		articles = Article.objects(title="Test Title")
+		self.assertEqual(articles[0].title, "Test Title")
 
 	def test_delete(self):
-		for article in Article.objects:
+		articles = Article.objects(title="Test Title")
+		for article in articles:
 			article.delete()
 		total = Article.objects.count()
 		self.assertEqual(total, 0)

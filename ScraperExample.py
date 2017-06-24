@@ -9,7 +9,10 @@ import datetime
 class NewsSpider(CrawlSpider):
 	name = "newsspider"	
 	start_urls = ["http://www.bbc.com"]
-	#Just check for http://www.bbc.com/news/xxx  
+	
+	# Since BBC is using RESTful and pretty url schema, 
+	# we just need to crawl for http://www.bbc.com/news/xxx links
+	# from the main page.
 	rules = (Rule(LinkExtractor(allow=('/news/+.',)), callback='parse_item'),)
 	
 	def parse_item(self, res):				
@@ -23,16 +26,20 @@ class NewsSpider(CrawlSpider):
 			article.author= self.get_author(res)
 			article.agency= self.get_agency(res)
 			self.print_response(article)
-			yield article.save()
+			try:
+				yield article.save()
+			except Exception, e:
+				print 'Unable to save Article in database: ', e
+			return None
 
 	def print_response(self, article):
-		print('\n\n')
-		print("URL: " + article.url)
-		print("TITLE: " + article.title)
-		print('PUBLISHED: ' + article.published.strftime('%d, %b %Y'))
-		print("BODY:")			
-		print(article.body)
-		print('\n\n')
+		print '\n\n'
+		print "URL: " + article.url
+		print "TITLE: " + article.title
+		print 'PUBLISHED: ' + article.published.strftime('%d, %b %Y')
+		print "BODY:"			
+		print article.body
+		print '\n\n'
 
 	def get_title(self, res):
 		title = res.css('h1.story-body__h1 ::text').extract_first()
