@@ -2,8 +2,7 @@ import sys, os, unittest, datetime
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) + "/..")
 from models.news import Article
 
-class NewsSpiderTester(unittest.TestCase):
-	article = None
+class NewsSpiderTester(unittest.TestCase):	
 	def test_insert(self):
 		article = Article(title='Test Title', body='Test Body', published= datetime.datetime.utcnow, author='Test Author', agency='Test Agency', url='http://test.com')
 		article.tags = ['Test Tag 1', 'Test Tag 2']
