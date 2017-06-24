@@ -15,7 +15,7 @@ class NewsSpider(CrawlSpider):
 	# start_urls = [bbc, guardian]
 	start_urls = [bbc]
 	# start_urls = [guardian]
-	allowed_domains["bbc.com", "bbc.co.uk", "theguardian.com"]
+	allowed_domains =["bbc.com", "bbc.co.uk", "theguardian.com"]
 	
 	bbc_parser = BBCParser()
 	guardian_parser = GuardianParser()	
@@ -72,4 +72,3 @@ class NewsSpider(CrawlSpider):
 		except Exception as e:
 			print ('Unable to save Article in database: ', e)
 
-			
