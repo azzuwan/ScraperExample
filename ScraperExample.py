@@ -72,6 +72,4 @@ class NewsSpider(CrawlSpider):
 		except Exception as e:
 			print ('Unable to save Article in database: ', e)
 
-class LinkInfo(scrapy.Item):
-	link = scrapy.Field()
-    attr = scrapy.Field()
+			
