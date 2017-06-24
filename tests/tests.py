@@ -21,7 +21,8 @@ class NewsSpiderTester(unittest.TestCase):
 		self.assertEqual(Article.objects[0].title, "Test Title")
 
 	def test_delete(self):
-		self.article.delete()
+		for article in Article.objects:
+			article.delete()
 		total = Article.objects.count()
 		self.assertEqual(total, 0)
 
