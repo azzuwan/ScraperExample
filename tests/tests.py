@@ -9,7 +9,7 @@ class NewsSpiderTester(unittest.TestCase):
 		article.tags = ['Test Tag 1', 'Test Tag 2']
 		article.save()
 		self.article = article
-		self.assertIsNotNone(article._id)
+		self.assertIsNotNone(article.id)
 
 	def test_count(self):		
 		total = Article.objects.count()
