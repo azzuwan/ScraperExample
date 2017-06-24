@@ -4,59 +4,66 @@ from scrapy.linkextractors import LinkExtractor
 from scrapy.selector import Selector
 from scrapy.http import HtmlResponse
 from models.news import Article
+from parsers.bbc import BBCParser
+from parsers.guardian import GuardianParser
 import datetime
 
 class NewsSpider(CrawlSpider):
 	name = "newsspider"	
-	start_urls = ["http://www.bbc.com"]
+	bbc = "http://www.bbc.com"
+	guardian = "https://www.theguardian.com"
+	# start_urls = [bbc, guardian]
+	# start_urls = [bbc]
+	start_urls = [guardian]
+	bbc_parser = BBCParser()
+	guardian_parser = GuardianParser()	
 	
-	# Since BBC is using RESTful and pretty url schema, 
-	# we just need to crawl for http://www.bbc.com/news/xxx links
-	# from the main page.
-	rules = (Rule(LinkExtractor(allow=('/news/+.',)), callback='parse_item'),)
-	
-	def parse_item(self, res):				
-		title = self.get_title(res)
-		if title != None:						
-			article = Article()
-			article.url = res.url 
-			article.title=title
-			article.body= self.get_body(res)
-			article.published= self.get_published(res)
-			article.author= self.get_author(res)
-			article.agency= self.get_agency(res)
-			self.print_response(article)
+	rules = (
+		# Since BBC is using RESTful and pretty url schema, 
+		# we just need to crawl for http://www.bbc.com/news/xxx links
+		# from the main page.
+		# Rule(LinkExtractor(allow=('/news/+.',)), callback='parse_item'),
+		Rule(LinkExtractor(), callback='parse_item', follow=True),
+		# Guardian top level news links are clasified into regional sections
+		# Rule(LinkExtractor(allow=(guardian +'/+.',)), callback='parse_item'),
+		)
+	# Entry point and main callback for Scrapy
+	def parse_item(self, res):
+		# Here the all the major processing steps are made obvious and simplified. 
+		# We segregated the process into
+		# 1) Parsing factory that allows us to add more parsers in the future
+		# 2) Database insertion operation		
+		
+		# Parsing handler that loads site dependent parsers
+		article = self.parse(res)
+		
+		# Sanitizer will go here 
+		# Mercury / Readability is not implemented here because it sucks
+		# Data from hand tuned crawler is cleaner and more complete 
+		# Implementing it only adds more noise with zero gain
+
+		# Save processed article to Compose MongoDB instances
+		self.save(article)
+		return None
+
+	# Our parser factory
+	def parse(self, res):
+		article = None
+		if self.bbc in res.url:
+			try:			
+				article = yield self.bbc_parser.parse(res)
+			except Exception as e:
+				print("BBC content parsing error: ", e)
+		else:
 			try:
-				yield article.save()
-			except Exception, e:
-				print 'Unable to save Article in database: ', e
-			return None
+				article = yield self.guardian_parser.parse(res)
+			except Exception as e:
+				print("Guardian content parsing error: ", e)
+		return article
 
-	def print_response(self, article):
-		print '\n\n'
-		print "URL: " + article.url
-		print "TITLE: " + article.title
-		print 'PUBLISHED: ' + article.published.strftime('%d, %b %Y')
-		print "BODY:"			
-		print article.body
-		print '\n\n'
-
-	def get_title(self, res):
-		title = res.css('h1.story-body__h1 ::text').extract_first()
-		return title
-
-	def get_body(self, res):
-		raw = res.css('div.story-body__inner p ::text')
-		body =  ''.join(raw.extract())
-		return body
-
-	def get_published(self, res):
-		timestamp = res.css('div.story-body div.date ::attr(data-seconds)').extract_first()		
-		published = datetime.datetime.fromtimestamp(int(timestamp))
-		return published
-
-	def get_author(self, res):
-		return 'bbc'
-
-	def get_agency(self, res):
-		return 'bbc'
+	# Saves processed articles into MongoDB
+	def save(self, article):		
+		try:
+			yield article.save()
+		except Exception as e:
+			print ('Unable to save Article in database: ', e)
