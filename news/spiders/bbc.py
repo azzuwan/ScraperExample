@@ -2,7 +2,9 @@
 import scrapy
 from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import CrawlSpider, Rule
+from readability import Document
 import datetime
+from pprint import pprint
 
 class Article(scrapy.Item):
     url = scrapy.Field()
@@ -20,10 +22,15 @@ class BbcSpider(CrawlSpider):
     rules = (
         Rule(LinkExtractor(), callback='parse_item', follow=True),
     )
-    def parse_item(self, res):               
+    def parse_item(self, res):        
         title = self.get_title(res)
         article = Article()        
-        if title != None:  
+        # Only do further processing if there is a title element in the page
+        if title != None:             
+            # Readability sanitization not implemented because it sucks
+            # The hand tuned selectors are already way cleaner and useful 
+            # res = self.sanitize(res)
+            self.sanitize(res)
             article = Article()
             article['url'] = res.url 
             article['title']=title
@@ -31,9 +38,19 @@ class BbcSpider(CrawlSpider):
             article['published']= self.get_published(res)
             article['author']= self.get_author(res)
             article['agency']= self.get_agency(res)
-            self.log(article)           
-        return article
-    
+            # self.log(article)           
+            return article
+        else:
+            return None
+
+    def sanitize(self, res):
+        """
+        Using readability to clean up content from the response.
+        This method is not fully implemented.
+        """        
+        res._set_body(bytes(doc))
+        return res
+
     def get_title(self, res):
         title = res.css('h1.story-body__h1 ::text').extract_first()
         return title
