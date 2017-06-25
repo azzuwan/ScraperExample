@@ -28,7 +28,7 @@ class BbcSpider(CrawlSpider):
         # Only do further processing if there is a title element in the page
         if title != None:             
             # Readability sanitization not implemented because it sucks
-            # The hand tuned selectors are already way cleaner and useful 
+            # The hand tuned selectors extractions are way cleaner and useful 
             # res = self.sanitize(res)
             self.sanitize(res)
             article = Article()
@@ -52,21 +52,37 @@ class BbcSpider(CrawlSpider):
         return res
 
     def get_title(self, res):
+        """
+        Get the title of the article
+        """
         title = res.css('h1.story-body__h1 ::text').extract_first()
         return title
 
     def get_body(self, res):
+        """
+        Get the actual text of the article
+        """
         raw = res.css('div.story-body__inner p ::text')
         body =  ''.join(raw.extract())
         return body
 
     def get_published(self, res):
+        """
+        Get the article timestamp
+        """
         timestamp = res.css('div.story-body div.date ::attr(data-seconds)').extract_first()     
         published = datetime.datetime.fromtimestamp(int(timestamp))
         return published
 
     def get_author(self, res):
+        """
+        Get the author of the article. BBC is somewhat shy about putting a name  on articles
+        So we just return the string "bbc"        
+        """
         return 'bbc'
 
     def get_agency(self, res):
+        """
+        Get the agency name
+        """
         return 'bbc'
