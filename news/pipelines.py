@@ -6,7 +6,6 @@
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 import pymongo
 
-
 class NewsPipeline(object):
     def process_item(self, item, spider):
         return item
