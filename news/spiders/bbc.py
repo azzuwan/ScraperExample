@@ -30,7 +30,7 @@ class BbcSpider(CrawlSpider):
             # Readability sanitization not implemented because it sucks
             # The hand tuned selectors extractions are way cleaner and useful 
             # res = self.sanitize(res)
-            self.sanitize(res)
+            
             article = Article()
             article['url'] = res.url 
             article['title']=title
