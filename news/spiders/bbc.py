@@ -26,11 +26,7 @@ class BbcSpider(CrawlSpider):
         title = self.get_title(res)
         article = Article()        
         # Only do further processing if there is a title element in the page
-        if title != None:             
-            # Readability sanitization not implemented because it sucks
-            # The hand tuned selectors extractions are way cleaner and useful 
-            # res = self.sanitize(res)
-            
+        if title != None:
             article = Article()
             article['url'] = res.url 
             article['title']=title
@@ -42,14 +38,6 @@ class BbcSpider(CrawlSpider):
             return article
         else:
             return None
-
-    def sanitize(self, res):
-        """
-        Using readability to clean up content from the response.
-        This method is not fully implemented.
-        """        
-        res._set_body(bytes(doc))
-        return res
 
     def get_title(self, res):
         """

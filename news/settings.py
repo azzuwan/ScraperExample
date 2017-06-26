@@ -66,7 +66,9 @@ ROBOTSTXT_OBEY = False
 # Configure item pipelines
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-   'news.pipelines.MongoPipeline': 10,
+	# 'news.pipelines.SanitizerPipeline': 10
+   'news.pipelines.MongoPipeline': 20,
+
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
@@ -90,4 +92,4 @@ ITEM_PIPELINES = {
 #HTTPCACHE_IGNORE_HTTP_CODES = []
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 MONGO_URI = 'mongodb://azzuwan:Reddoor74@aws-ap-southeast-1-portal.2.dblayer.com:15501,aws-ap-southeast-1-portal.0.dblayer.com:15501/news'
-# MONGO_DATABASE = 'news'
+MONGO_DATABASE = 'news'
