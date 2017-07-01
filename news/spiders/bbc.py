@@ -6,7 +6,7 @@ from readability import Document
 import datetime
 from pprint import pprint
 
-class Article(scrapy.Item):
+class Articles(scrapy.Item):
     url = scrapy.Field()
     title = scrapy.Field()
     author = scrapy.Field()
@@ -27,7 +27,7 @@ class BbcSpider(CrawlSpider):
         article = Article()        
         # Only do further processing if there is a title element in the page
         if title != None:
-            article = Article()
+            article = Articles()
             article['url'] = res.url 
             article['title']=title
             article['body']= self.get_body(res)
